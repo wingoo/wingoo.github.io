@@ -16,15 +16,29 @@
 			<pubDate>Fri, 22 Mar 2019 00:00:00 +0000</pubDate>
 			
 			<guid>https://betacat.dev/posts/closure-trap-in-loop/</guid>
-			<description> 多数内容翻译自 CommonMistakes
-简介 在循环中使用 goroutine </description>
-			<content type="html"><![CDATA[
+			<description>多数内容翻译自 CommonMistakes
+在 go 中进行循环操作时, 你有可能会使用 goroutine 并发的处理数据. 下面是一个使用闭包处理循环的例子
+1 2 3 4 5  for _, val := range values { go func() { fmt.Println(val) }() }   </description>
+			<content type="html"><![CDATA[<p>多数内容翻译自 <a href="https://github.com/golang/go/wiki/CommonMistakes" target="_blank">CommonMistakes</a></p>
 
-<p>多数内容翻译自 <a href="https://github.com/golang/go/wiki/CommonMistakes" target="_blank">CommonMistakes</a></p>
+<p>在 go 中进行循环操作时, 你有可能会使用 goroutine 并发的处理数据. 下面是一个使用闭包处理循环的例子</p>
 
-<h2 id="简介">简介</h2>
-
-<h2 id="在循环中使用-goroutine">在循环中使用 goroutine</h2>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">val</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">values</span> <span class="p">{</span>
+	<span class="k">go</span> <span class="kd">func</span><span class="p">()</span> <span class="p">{</span>
+		<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nx">val</span><span class="p">)</span>
+	<span class="p">}()</span>
+<span class="p">}</span></code></pre></td></tr></table>
+</div>
+</div>
 ]]></content>
 		</item>
 		
