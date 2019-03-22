@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Golang on BetaCat.Dev</title>
+    <link>https://betacat.dev/tags/golang/</link>
+    <description>Recent content in Golang on BetaCat.Dev</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <copyright>This work is licensed under a Creative Commons Attribution-NonCommercial 4.0 International License.</copyright>
+    <lastBuildDate>Fri, 22 Mar 2019 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="https://betacat.dev/tags/golang/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>循环中的闭包陷阱</title>
+      <link>https://betacat.dev/posts/closure-trap-in-loop/</link>
+      <pubDate>Fri, 22 Mar 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://betacat.dev/posts/closure-trap-in-loop/</guid>
+      <description> 多数内容翻译自 CommonMistakes
+简介 在循环中使用 goroutine </description>
+    </item>
+    
+  </channel>
+</rss>
