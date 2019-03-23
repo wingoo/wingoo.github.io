@@ -9,31 +9,34 @@
 	<meta name="msapplication-TileColor" content="#494f5c">
 
 <meta itemprop="name" content="循环中的闭包陷阱">
-<meta itemprop="description" content="多数内容翻译自 CommonMistakes
-在 go 中进行循环操作时, 你有可能会使用 goroutine 并发的处理数据. 下面是一个使用闭包处理循环的例子
-1 2 3 4 5  for _, val := range values { go func() { fmt.Println(val) }() }   ">
+<meta itemprop="description" content="在 go 中进行循环操作时, 对于批量任务, 大多都会用 goroutine 来并发处理. 下面代码使用了 goroutine &#43; closure
+1 2 3 4 5  for _, val := range values { go func() { fmt.Println(val) }() }   相信熟悉的同学们已经看出来了, 这段代码是有问题的. 循环中变动的变量, 如果直接在闭包使用, 会导致 goroutine 处理时拿到的值可能是重复的值. 因为循环迭代使用了同一个变量, 所以每个闭包也都共享了这一个变量. 当闭包开始运行, 程序在 println 执行时打印了val的值, 但这个值在 goroutine 启动时可能已经被修改了, 或者说可能被修改了很多次. 可以用go vet来判断是否有此类似的问题.
+为了绑定当前的val到每个启动后的闭包中, 需要在循环中新增变量. 一个方法是 将变量对闭包进行参数传递, 如下:
+1 2 3 4 5  for _, val := range values { go func(val interface{}) { fmt.">
 
 
 <meta itemprop="datePublished" content="2019-03-22T00:00:00&#43;00:00" />
 <meta itemprop="dateModified" content="2019-03-22T00:00:00&#43;00:00" />
-<meta itemprop="wordCount" content="27">
+<meta itemprop="wordCount" content="258">
 
 
 
 <meta itemprop="keywords" content="golang,closure,goroutine,dev," />
 <meta property="og:title" content="循环中的闭包陷阱" />
-<meta property="og:description" content="多数内容翻译自 CommonMistakes
-在 go 中进行循环操作时, 你有可能会使用 goroutine 并发的处理数据. 下面是一个使用闭包处理循环的例子
-1 2 3 4 5  for _, val := range values { go func() { fmt.Println(val) }() }   " />
+<meta property="og:description" content="在 go 中进行循环操作时, 对于批量任务, 大多都会用 goroutine 来并发处理. 下面代码使用了 goroutine &#43; closure
+1 2 3 4 5  for _, val := range values { go func() { fmt.Println(val) }() }   相信熟悉的同学们已经看出来了, 这段代码是有问题的. 循环中变动的变量, 如果直接在闭包使用, 会导致 goroutine 处理时拿到的值可能是重复的值. 因为循环迭代使用了同一个变量, 所以每个闭包也都共享了这一个变量. 当闭包开始运行, 程序在 println 执行时打印了val的值, 但这个值在 goroutine 启动时可能已经被修改了, 或者说可能被修改了很多次. 可以用go vet来判断是否有此类似的问题.
+为了绑定当前的val到每个启动后的闭包中, 需要在循环中新增变量. 一个方法是 将变量对闭包进行参数传递, 如下:
+1 2 3 4 5  for _, val := range values { go func(val interface{}) { fmt." />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://betacat.dev/posts/closure-trap-in-loop/" />
 <meta property="article:published_time" content="2019-03-22T00:00:00&#43;00:00"/>
 <meta property="article:modified_time" content="2019-03-22T00:00:00&#43;00:00"/>
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="循环中的闭包陷阱"/>
-<meta name="twitter:description" content="多数内容翻译自 CommonMistakes
-在 go 中进行循环操作时, 你有可能会使用 goroutine 并发的处理数据. 下面是一个使用闭包处理循环的例子
-1 2 3 4 5  for _, val := range values { go func() { fmt.Println(val) }() }   "/>
+<meta name="twitter:description" content="在 go 中进行循环操作时, 对于批量任务, 大多都会用 goroutine 来并发处理. 下面代码使用了 goroutine &#43; closure
+1 2 3 4 5  for _, val := range values { go func() { fmt.Println(val) }() }   相信熟悉的同学们已经看出来了, 这段代码是有问题的. 循环中变动的变量, 如果直接在闭包使用, 会导致 goroutine 处理时拿到的值可能是重复的值. 因为循环迭代使用了同一个变量, 所以每个闭包也都共享了这一个变量. 当闭包开始运行, 程序在 println 执行时打印了val的值, 但这个值在 goroutine 启动时可能已经被修改了, 或者说可能被修改了很多次. 可以用go vet来判断是否有此类似的问题.
+为了绑定当前的val到每个启动后的闭包中, 需要在循环中新增变量. 一个方法是 将变量对闭包进行参数传递, 如下:
+1 2 3 4 5  for _, val := range values { go func(val interface{}) { fmt."/>
 
 	<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 	<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
@@ -80,9 +83,7 @@
 				<h1>循环中的闭包陷阱</h1>
 			</header>
 			<div class="content">
-				<p>多数内容翻译自 <a href="https://github.com/golang/go/wiki/CommonMistakes" target="_blank">CommonMistakes</a></p>
-
-<p>在 go 中进行循环操作时, 你有可能会使用 goroutine 并发的处理数据. 下面是一个使用闭包处理循环的例子</p>
+				<p>在 go 中进行循环操作时, 对于批量任务, 大多都会用 goroutine 来并发处理. 下面代码使用了 goroutine + closure</p>
 
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
@@ -101,13 +102,170 @@
 </div>
 </div>
 
+<p>相信熟悉的同学们已经看出来了, 这段代码是有问题的. 循环中<code>变动</code>的变量, 如果直接在闭包使用, 会导致 goroutine 处理时拿到的值可能是重复的值. 因为循环迭代使用了同一个变量, 所以每个闭包也都共享了这一个变量. 当闭包开始运行, 程序在 println 执行时打印了<code>val</code>的值, 但这个值在 goroutine 启动时可能已经被修改了, 或者说可能被修改了很多次. 可以用<a href="https://golang.org/cmd/go/#hdr-Run_go_tool_vet_on_packages" target="_blank">go vet</a>来判断是否有此类似的问题.</p>
+
+<p>为了绑定当前的<code>val</code>到每个启动后的闭包中, 需要在循环中新增变量. 一个方法是 将变量对闭包进行参数传递, 如下:</p>
+
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">val</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">values</span> <span class="p">{</span>
+	<span class="k">go</span> <span class="kd">func</span><span class="p">(</span><span class="nx">val</span> <span class="kd">interface</span><span class="p">{})</span> <span class="p">{</span>
+		<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nx">val</span><span class="p">)</span>
+	<span class="p">}(</span><span class="nx">val</span><span class="p">)</span>
+<span class="p">}</span></code></pre></td></tr></table>
+</div>
+</div>
+
+<p>通过在闭包中传递参数, <code>val</code>变量在循环中被放在栈上,所以每一个循环中的变量在 goroutine 中都是有效的.</p>
+
+<p>另外也可以在循环中定义局部变量来解决, 循环的每一次, 变量都会重新定义, 所以也不会在循环中被共享.</p>
+
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">valslice</span> <span class="p">{</span>
+	<span class="nx">val</span> <span class="o">:=</span> <span class="nx">valslice</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span>
+	<span class="k">go</span> <span class="kd">func</span><span class="p">()</span> <span class="p">{</span>
+		<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nx">val</span><span class="p">)</span>
+	<span class="p">}()</span>
+<span class="p">}</span></code></pre></td></tr></table>
+</div>
+</div>
+
+<p><strong>如果不在循环中定义新的变量, 可能会造成预想之外的行为. 这个行为在未来的 go 版本中可能会修改, 但在 version 1的大版本中不会做改动, 详见<a href="https://golang.org/doc/faq#closures_and_goroutines" target="_blank">golang FAQ</a></strong></p>
+
+<p>如果闭包不通过 goroutine 来执行, 则不会有问题, 下面的代码会打印1 -&gt; 10</p>
+
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="mi">1</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;=</span> <span class="mi">10</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span> <span class="p">{</span>
+	<span class="kd">func</span><span class="p">()</span> <span class="p">{</span>
+		<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nx">i</span><span class="p">)</span>
+	<span class="p">}()</span>
+<span class="p">}</span></code></pre></td></tr></table>
+</div>
+</div>
+
+<p>正确执行的原因是, 在每次循环迭代时, 匿名函数都会在拿到当前变量后同步执行</p>
+
+<p>下面是另外一种类似的情况</p>
+
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">val</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">values</span> <span class="p">{</span>
+	<span class="k">go</span> <span class="nx">val</span><span class="p">.</span><span class="nf">MyMethod</span><span class="p">()</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="p">(</span><span class="nx">v</span> <span class="o">*</span><span class="nx">val</span><span class="p">)</span> <span class="nf">MyMethod</span><span class="p">()</span> <span class="p">{</span>
+        <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nx">v</span><span class="p">)</span>
+<span class="p">}</span></code></pre></td></tr></table>
+</div>
+</div>
+
+<p>上面的代码依旧会只打印最后一个<code>val</code>的值, 原因同上, 要解决的话, 只需要在循环中新增一个变量即可</p>
+
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">val</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">values</span> <span class="p">{</span>
+        <span class="nx">newVal</span> <span class="o">:=</span> <span class="nx">val</span>
+	<span class="k">go</span> <span class="nx">newVal</span><span class="p">.</span><span class="nf">MyMethod</span><span class="p">()</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="p">(</span><span class="nx">v</span> <span class="o">*</span><span class="nx">val</span><span class="p">)</span> <span class="nf">MyMethod</span><span class="p">()</span> <span class="p">{</span>
+        <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nx">v</span><span class="p">)</span>
+<span class="p">}</span></code></pre></td></tr></table>
+</div>
+</div>
+
+<hr />
+
+<p>现在, 我们可以整理总结下, 循环中变量的使用规则</p>
+
+<ol>
+<li>循环中如果不存在延迟执行, 则没有问题.</li>
+<li>循环之外定义的变量, 如果只是读取也没有问题</li>
+<li>可以通过临时变量保存循环的变量值, 以保证后续延迟执行的调用可靠</li>
+</ol>
+
+<hr />
+
+<p>好吧, 之所以翻译这篇文章, 是因为遇到了异常, 直接看代码吧 <a href="https://play.golang.org/p/CMJWCOM4OCl" target="_blank">go paly</a></p>
+
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="nx">bb</span> <span class="o">:=</span> <span class="p">[]</span><span class="nx">ccc</span><span class="p">{{</span><span class="nx">aa</span><span class="p">:</span> <span class="mi">11</span><span class="p">,</span> <span class="nx">bb</span><span class="p">:</span> <span class="mi">22</span><span class="p">},</span> <span class="p">{</span><span class="nx">aa</span><span class="p">:</span> <span class="mi">111</span><span class="p">,</span> <span class="nx">bb</span><span class="p">:</span> <span class="mi">222</span><span class="p">},}</span>
+<span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">i</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">bb</span> <span class="p">{</span>
+    <span class="k">go</span> <span class="kd">func</span><span class="p">(</span><span class="nx">i</span> <span class="o">*</span><span class="nx">ccc</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nx">i</span><span class="p">)</span>
+    <span class="p">}(</span><span class="o">&amp;</span><span class="nx">i</span><span class="p">)</span>
+<span class="p">}</span></code></pre></td></tr></table>
+</div>
+</div>
+
+<p>第五行, 传递的 i 的引用, 尽管遵从了闭包参数传递的规则, 但因为传送的是变量地址, 所以仍然导致问题. 如果去除引用传递, 则没有问题, 不管<code>ccc</code>的值是 struct 还是指针.</p>
+
+<p>Reference:</p>
+
+<ul>
+<li><a href="https://github.com/golang/go/wiki/CommonMistakes" target="_blank">CommonMistakes</a></li>
+<li><a href="https://golang.org/doc/faq#closures_and_goroutines" target="_blank">golang FAQ</a></li>
+</ul>
+
 			</div>
 			<hr class="post-end">
 			<footer class="post-info">
 				<p>
 					<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-tag meta-icon"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7" y2="7"></line></svg><span class="tag"><a href="https://betacat.dev/tags/golang">golang</a></span><span class="tag"><a href="https://betacat.dev/tags/closure">closure</a></span><span class="tag"><a href="https://betacat.dev/tags/goroutine">goroutine</a></span><span class="tag"><a href="https://betacat.dev/tags/dev">dev</a></span>
 				</p>
-				<p><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-file-text"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>27 Words</p>
+				<p><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-file-text"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>258 Words</p>
 				<p><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-calendar"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>2019-03-22 08:00 &#43;0800</p>
 			</footer>
 		</article>

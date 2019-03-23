@@ -18,9 +18,10 @@
       <pubDate>Fri, 22 Mar 2019 00:00:00 +0000</pubDate>
       
       <guid>https://betacat.dev/posts/closure-trap-in-loop/</guid>
-      <description>多数内容翻译自 CommonMistakes
-在 go 中进行循环操作时, 你有可能会使用 goroutine 并发的处理数据. 下面是一个使用闭包处理循环的例子
-1 2 3 4 5  for _, val := range values { go func() { fmt.Println(val) }() }   </description>
+      <description>在 go 中进行循环操作时, 对于批量任务, 大多都会用 goroutine 来并发处理. 下面代码使用了 goroutine + closure
+1 2 3 4 5  for _, val := range values { go func() { fmt.Println(val) }() }   相信熟悉的同学们已经看出来了, 这段代码是有问题的. 循环中变动的变量, 如果直接在闭包使用, 会导致 goroutine 处理时拿到的值可能是重复的值. 因为循环迭代使用了同一个变量, 所以每个闭包也都共享了这一个变量. 当闭包开始运行, 程序在 println 执行时打印了val的值, 但这个值在 goroutine 启动时可能已经被修改了, 或者说可能被修改了很多次. 可以用go vet来判断是否有此类似的问题.
+为了绑定当前的val到每个启动后的闭包中, 需要在循环中新增变量. 一个方法是 将变量对闭包进行参数传递, 如下:
+1 2 3 4 5  for _, val := range values { go func(val interface{}) { fmt.</description>
     </item>
     
   </channel>
